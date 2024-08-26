@@ -9,6 +9,21 @@ class DataType(models.TextChoices):
     DATETIME = 'datetime', 'Datetime'
 
 
+class AppType(models.TextChoices):
+    CROSS_SELL = 'cross_sell'
+
+
+class Webhooks(models.Model):
+    app = models.CharField(choices=AppType.choices)
+    webhook_data = models.TextField(null=False)
+    event_type = models.CharField(max_length=255, null=True)
+    shop_id = models.CharField(max_length=255, null=False)
+
+    class Meta:
+        abstract = False
+        db_table = 'webhook'
+
+
 class ComparisonOperator(models.TextChoices):
     EQUAL = '=', 'Equal'
     LESS_THAN = '<', 'Less Than'

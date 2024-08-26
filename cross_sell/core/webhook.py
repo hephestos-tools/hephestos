@@ -27,8 +27,8 @@ def get_webhook_repo(param):
     pass
 
 
-def list_all_webhooks():
-    repo = get_webhook_repo(next("get_db()"))
-    return repo.list_webhooks()
+# def list_all_webhooks():
+#     repo = get_webhook_repo(next("get_db()"))
+#     return repo.list_webhooks()
 
 

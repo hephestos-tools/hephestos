@@ -25,9 +25,14 @@ SECRET_KEY = 'django-insecure-!-nrmx@m3w4!+)l##$a3v#4b&(mto4ya!$ueeo5&q)nufbg$ra
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# this will be changed whenever we restart ngrok server
+ALLOWED_HOSTS = [
+    '89ea-2406-7400-56-2992-e1d3-f259-6c4c-9d4d.ngrok-free.app',
+    '127.0.0.1'
+]
 
-
+# shopify shared secret for store 'hephystore.myshopify.com'
+SHOPIFY_SHARED_SECRET = '52a7872e78e147f80a4f72030fc22546c4ffa208c1ddb69234c11b49d6935f3d'
 # Application definition
 
 INSTALLED_APPS = [

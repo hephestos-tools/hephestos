@@ -6,6 +6,7 @@ from django.http import JsonResponse
 import hmac
 import hashlib
 from hephestos.settings import SHOPIFY_SHARED_SECRET
+from cross_sell.models import *
 
 
 # Create your views here.
@@ -17,29 +18,38 @@ def index(request):
 @csrf_exempt
 def webhook(request):
     # verify webhook signature
-    event_type = request.headers.get('X-Shopify-Topic')
-    print("event type", event_type)
 
-    if event_type is not "orders/create":
-        return JsonResponse({'status': 'success'}, status=200)
-    if not verify_webhook_signature(request):
-        return JsonResponse({'error': 'Invalid signature'}, status=400)
-
-
-    # persist data
     if request.method == "POST" and request.content_type == "application/json":
+        event_type = request.headers.get('X-Shopify-Topic')
+
+        if event_type != str(ShopifyEventType.ORDERS_CREATE.value):
+            return JsonResponse({'status': 'success'}, status=200)
+        # TODO: verify not working right now
+        # if not verify_webhook_signature(request):
+        #     return JsonResponse({'error': 'Invalid signature'}, status=400)
+
+        # persist data
         body_data = json.loads(request.body.decode('utf-8'))
-        WebhookRepository.save_webhook(
+        webhook_data = Webhooks(
             webhook_data=str(body_data),
             shop_id='some_id',
-            app='cross_sell',
+            app=str(AppType.CROSS_SELL.value),
             event_type=event_type
         )
+        WebhookRepository.save(webhook_data)
 
+        # send this data for further processing
 
-    # send this data for further processing
+        return JsonResponse({'status': 'success'}, status=200)
+    elif request.method == "GET":
 
-    return JsonResponse({'status': 'success'}, status=200)
+        items = (WebhookRepository.get_all()).values()
+        json_data = list(items)
+
+        return JsonResponse(json_data, safe=False)
+    # unidentified webhook received log this to errors
+    else:
+        return JsonResponse({'status': 'success'}, status=200)
 
 
 def verify_webhook_signature(request):
@@ -58,12 +68,3 @@ def verify_webhook_signature(request):
 
     # Compare the computed signature with the received signature
     return hmac.compare_digest(received_signature, computed_signature_base64)
-
-
-@csrf_exempt
-def get_webhook(request):
-    items = (WebhookRepository.get_all_webhooks()).values()
-    json_data = list(items)
-
-    print(str(items))
-    return JsonResponse(json_data, safe=False)

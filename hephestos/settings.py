@@ -27,7 +27,7 @@ DEBUG = True
 
 # this will be changed whenever we restart ngrok server
 ALLOWED_HOSTS = [
-    '89ea-2406-7400-56-2992-e1d3-f259-6c4c-9d4d.ngrok-free.app',
+    '6810-49-207-225-14.ngrok-free.app',
     '127.0.0.1'
 ]
 

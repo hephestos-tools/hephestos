@@ -55,22 +55,17 @@
 # """
 
 from cross_sell.models import Webhooks
+from cross_sell.core.repository.base_repository import BaseRepository
 
 
-class WebhookRepository:
+class WebhookRepository(BaseRepository):
 
     @staticmethod
-    def save_webhook(app, webhook_data, shop_id, event_type):
-        webhook = Webhooks(
-            app=app,
-            webhook_data=webhook_data,
-            shop_id=shop_id,
-            event_type=event_type
-        )
+    def save(webhook: Webhooks) -> Webhooks:
         webhook.save()
         return webhook
 
     @staticmethod
-    def get_all_webhooks():
+    def get_all():
         e = Webhooks.objects.all()
         return e

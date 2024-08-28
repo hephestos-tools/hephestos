@@ -13,10 +13,20 @@ class AppType(models.TextChoices):
     CROSS_SELL = 'cross_sell'
 
 
+class ShopifyEventType(models.TextChoices):
+    ORDERS_UPDATED = 'orders/updated'
+    ORDERS_EDITED = 'orders/edited'
+    ORDERS_CREATE = 'orders/create'
+    CARTS_CREATE = 'carts/create'
+    CARTS_UPDATE = 'carts/update'
+    CUSTOMERS_CREATE = 'customers/create'
+    CUSTOMERS_UPDATE = 'customers/update'
+
+
 class Webhooks(models.Model):
     app = models.CharField(choices=AppType.choices)
     webhook_data = models.TextField(null=False)
-    event_type = models.CharField(max_length=255, null=True)
+    event_type = models.CharField(choices=ShopifyEventType.choices)
     shop_id = models.CharField(max_length=255, null=False)
 
     class Meta:

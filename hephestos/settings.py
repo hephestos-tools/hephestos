@@ -28,7 +28,9 @@ DEBUG = True
 # this will be changed whenever we restart ngrok server
 ALLOWED_HOSTS = [
     '6810-49-207-225-14.ngrok-free.app',
-    '127.0.0.1'
+    '127.0.0.1',
+    'localhost',
+    '0.0.0.0'
 ]
 
 # shopify shared secret for store 'hephystore.myshopify.com'
@@ -84,8 +86,8 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "hephestos",
         "USER": "postgres",
-        "PASSWORD": "",
-        "HOST": "127.0.0.1",
+        "PASSWORD": "h3phest0$",
+        "HOST": "db",
         "PORT": "5432",
     }
 }

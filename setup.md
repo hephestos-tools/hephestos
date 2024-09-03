@@ -8,7 +8,7 @@ git clone git@github.com:hephestos-tools/hephestos.git
 cd hephestos
 ```
 
-#### Install Docker
+#### Install Docker (ignore if already installed)
 https://docs.docker.com/desktop/install/mac-install/
 
 ### Build the app

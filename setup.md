@@ -51,5 +51,6 @@ PSQL Command to access DB
 psql -U postgres -d hephestos
 ```
 
-In your browser open http://127.0.0.1:8000/cross-sell/ and you should see something like this:
+### Test app
+In your browser open http://127.0.0.1:8000/cross-sell/ and you should see something like this if your setup is successful:
 ![img.png](img.png)

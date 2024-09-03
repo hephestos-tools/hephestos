@@ -6,7 +6,7 @@ from hephestos.settings import GOOGLE_PROJECT_ID
 
 
 class Command(BaseCommand):
-    help = 'Subscribe to a Google Pub/Sub topic and handle messages'
+    help = 'Subscribe to a Google Pub/Sub topic and handle message'
 
 
     def handle(self, *args, **options):

@@ -1,79 +1,56 @@
 ## hephestos dev setup MacOS
-In shell, run each command and proceed once the previous one is success
+We are using docker to manage setup.
 
-### Install Project
+### Clone Project
 #### SSH remote repository
 ```sh
 git clone git@github.com:hephestos-tools/hephestos.git
 cd hephestos
 ```
-#### Installing python3 (skip if already installed)
+
+#### Install Docker (ignore if already installed)
+https://docs.docker.com/desktop/install/mac-install/
+
+### Build the app
+This command will pull official image of postgres:16 and build a new image of hephestos. Install python and project dependencies.
 ```commandline
-brew install python@3.12
-```
-#### venv setup
-```commandline
-python3 -m venv .venv
-source .venv/bin/activate
-```
-#### Install python requirements 
-```commandline
-pip install --upgrade pip
-pip install -r requirements.txt
+docker-compose build
 ```
 
-### Database Setup
-#### Install Postgres@15
+### Run the app
+This step will:
+1. Run the db image 
+2. Run db migrations from web app
+3. Start google pub-sub subsriber
+4. Start the webserver on [0.0.0.0:8000]()
 ```commandline
-brew install postgresql@15
+docker-compose up [-d]
+```
+Use `-d` flag when you want to access the terminal and let docker run in background. <br/><br/>
+**To stop the server run** `docker-compose down`
+
+##### Check running docker processes
+```commandline
+docker ps
+```
+Image Names:<br/>
+`hephestos-db-1` (Database)<br/>
+`hephestos-web-1`(Web App)
+##### Check image logs
+```commandline
+docker logs <image-name>
 ```
 
-#### Update path once postgres is installed
-Check your default bash file
-for e.g. if .zshrc
-Open .zshrc using vim or nano and add the below line in the file.
+### Access DB image
+This command will open the DB server using bash where you can run psql commands
 ```commandline
-export PATH="/opt/homebrew/opt/postgresql@15/bin:$PATH"
+docker exec -it hephestos-db-1 bash
 ```
-Once file is saved and closed.
+PSQL Command to access DB
 ```commandline
-source ~/.zshrc
-```
-* Start postgres server on local using command
-  ```commandline
-  brew services start postgresql@15
-  ```
-Check if you are able to access psql by running the command `psql -U postgres`
-if you get an error: psql: error: connection to server on socket "/tmp/.s.PGSQL.5432" failed: FATAL:  role "postgres" does not exist
-It means the postgres server was setup with your mac username as default, in that case run:
-```commandline
-psql -U <your-mac-username>
-```
-This will log you into default postgres db
-* Create a generic superuser:
-  ```commandline
-  CREATE ROLE postgres WITH LOGIN SUPERUSER PASSWORD '';
-  ```
-
-#### Create Database
-  ```commandline
-  sudo psql -U postgres -c "CREATE DATABASE hephestos;"
-  ```
-
-### Run setup migration
-This step will create the tables in your database `hephestos`
-<br>Replace <your-workspace> with the folder where you have cloned the repository
-```commandline
-cd <your-workspace>/hephestos
-python manage.py migrate
+psql -U postgres -d hephestos
 ```
 
-
-### Run Server
-Check if your app is correctly setup by running the following command
-```commandline
-python manage.py runserver
-```
-
-In your browser open http://127.0.0.1:8000/cross-sell/ and you should see something like this:
+### Test app
+In your browser open http://127.0.0.1:8000/cross-sell/ and you should see something like this if your setup is successful:
 ![img.png](img.png)

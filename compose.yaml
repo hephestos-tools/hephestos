@@ -39,6 +39,13 @@ services:
     depends_on:
        db:
          condition: service_healthy
+  subscriber:
+      image: hephestos-web-1
+      command: python manage.py subscriber.py
+      environment:
+        - GOOGLE_APPLICATION_CREDENTIALS=cross_sell/services/quantum-reducer-434016-m2-4a572a9a7852.json
+      volumes:
+        - .:/app
 
 volumes:
    pgdata:

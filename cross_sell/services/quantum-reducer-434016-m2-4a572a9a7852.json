@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "quantum-reducer-434016-m2",
+  "private_key_id": "4a572a9a78527075b150a476500604e9fa164c58",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCiV6XPL0Q7xhDD\n90e+6kf1Oxq4BPKtywFcM+QbsEH4sgVzC2s6YtGxwQ36KkxeSBjFx5eCj3MUu4ds\nJ0rd0+d4WKWUJhgPYacXQVWZ46ycZQ4QSiALbtk6yVsNhEEDWj2oU/loCy/uxM8G\ntiv1qVWipHcKNrutpvXXF0qBoIs2SxUSnlw2xwYdylmdlJSZcG+PCymjYu/AU5AK\njeTxDnlDaKDuP2eYq1WCYNeAENXfKCc7iNmTMeNvPOBQgk7+AwWKd6iO6Ai7wOqu\nrF4i/C3T6h8S7iBC0uLN27Sx8yf/tfL4Q0cpY6oqDQIvTD9lp8plRzjPb/MvHFBd\niKNvybULAgMBAAECggEASTdIU5GYr3CbnRYIKIVW4LXATiAFJvZ4bZIFnas3hacc\nKA+NU66/rfBIknvDJ35Sldh3b22s1DvjTpbGABeSvEcWniM0FLPQ/P79UUNKVNqK\npjQYEa/zjrzDMOxludJYHnOI9zCcdI4UZI2Cc+/j7E9KVLPsntu+4jvh4WZ7godQ\nT+OlyD6IEZcWY3JXGbHVjMeEfG1cPXacdkiVvFu3pEkHbF6s8y/hAA5T0yCO5ZjX\nvAiPBT/Wl5L4h3cZSmVbCe2omwg31XiFrFl6TJ6tQik28vpZouAWqAa01OB/JMXb\nuHsJ9k8/8/ZxFga4lcFUFDAJzdfjb2rsOW/HASegaQKBgQDQ75gpRqPPmAMM6rwj\nLa7QvN0GNobaF3h7eyLEe/+R68e2k0Wd5yc54EPPmM5UAt3VzrypCowuCImDCV9Q\n1ZiwViHDVVWN2ywc2umbLGHC7A3XMm0bjT40ROK8tnmCxgx8VU45WRPZXBAU+qQA\nsY883Ip42uOwCfANeFO5OiFmFwKBgQDG6TX6J+v8e4xZ+L50Yfyt4KlF1jdcCtMC\nOa43bWXT6kZUhXMV7A8MvsMM5Z6X4EJoUVSPaRq0tGeCJ1PELOEDj6u7dFcVGhJJ\nY7Eat9FxhjfjwGB7QyRvsCuNLy4MzXUKl+qPtjshXpwcZY0wzFA++yAK0LgTuOm/\nBC3jBXg1LQKBgBW6BImuRdSNiyupsTy7QGWGbjl6LBW7wRSeHmRuPIpRCWiL8f5U\njjivgH2y9ym3TpgwMmAlr6QN0TbmH5pJS+JyYnpsgkQJGZI6lXZEbDoXz+yj2sK1\nslU/IJDdLM+ThrLbMBI4mB7POwDje3BzBmEe0et1X53ruqG79IDbcaOrAoGAChXr\nGbsKeSveivVU2tvZDwv0KUlaVz1pQ5SfI8pVPnCDjmeR1Uu526CUjUPbTcIeO+Hb\n0sW2h/EZynyp/6ly41ZWk9OrUrOWt8fpQ/yMDyCKFu87NSTLZSpemvMId7e3NolL\naGwKBYAhlEMF7LJ/YyIilsnMe5uFppzUos01MiUCgYAX9gW1HW7GBAGECoMhRWCd\nG/YRTxYnSQ2+EY+HOgWqGYdYU3Tqqs/QHzzBWsufceyThtDhcfd4rezg0wJhf3NM\n+CgUf2cWkxIOex4tss74+9ozg/Y30sF9l+D072Pk2yZk81/YU0iJzQX9w3ngx5l6\noorIrT3d/ACzJtgxHOGgew==\n-----END PRIVATE KEY-----\n",
+  "client_email": "hephestos-client@quantum-reducer-434016-m2.iam.gserviceaccount.com",
+  "client_id": "104478768876317301660",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/hephestos-client%40quantum-reducer-434016-m2.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

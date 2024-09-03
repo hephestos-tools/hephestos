@@ -143,5 +143,5 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-GOOGLE_SUBSCRIPTION_ID = 'subscription_id'
+GOOGLE_SUBSCRIPTION_ID = 'cross-sell-sub'
 GOOGLE_PROJECT_ID = 'quantum-reducer-434016-m2'

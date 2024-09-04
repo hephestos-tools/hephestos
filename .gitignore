@@ -1,6 +1,7 @@
 # Environments
 .venv
 
+config/gcloud/*
 #IDE
 .idea
 

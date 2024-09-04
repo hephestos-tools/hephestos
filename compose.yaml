@@ -37,7 +37,7 @@ services:
       start_period: 30s
       timeout: 10s
     environment:
-      - GOOGLE_APPLICATION_CREDENTIALS=cross_sell/services/quantum-reducer-434016-m2-4a572a9a7852.json
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/config/gcloud/application_default_credentials.json
     depends_on:
        db:
          condition: service_healthy

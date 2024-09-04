@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#TODO should we add make migrations here as well?
+#python manage.py makemigrations
+
 # Run Django migrations
 python manage.py migrate
 

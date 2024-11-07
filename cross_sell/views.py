@@ -1,4 +1,4 @@
-from cross_sell.core.repository.workflow_repository import WebhookRepository
+from core.repository.workflow_repository import WebhookRepository
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import json

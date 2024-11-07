@@ -55,7 +55,7 @@
 # """
 
 from cross_sell.models import Webhooks
-from cross_sell.core.repository.base_repository import BaseRepository
+from core.repository.base_repository import BaseRepository
 
 
 class WebhookRepository(BaseRepository):

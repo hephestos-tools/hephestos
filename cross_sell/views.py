@@ -30,12 +30,7 @@ def webhook(request):
 
         # persist data
         body_data = json.loads(request.body.decode('utf-8'))
-        webhook_data = Webhooks(
-            webhook_data=str(body_data),
-            shop_id='some_id',
-            app=str(AppType.CROSS_SELL.value),
-            event_type=event_type
-        )
+        webhook_data = ""
         WebhookRepository.save(webhook_data)
 
         # send this data for further processing

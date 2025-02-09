@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'core.apps.CoreConfig',
     'cross_sell.apps.CrossSellConfig',
+    'shopify.apps.ShopifyConfig',
 ]
 
 MIDDLEWARE = [

@@ -1,5 +1,5 @@
-from cross_sell.core.executor import execute_workflow
-from cross_sell.core.workflow import load_workflow
+from core.executor import execute_workflow
+from core.workflow import load_workflow
 
 
 def process(webhook_data):

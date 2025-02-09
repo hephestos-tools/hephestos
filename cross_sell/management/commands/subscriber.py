@@ -8,10 +8,9 @@ from hephestos.settings import GOOGLE_PROJECT_ID
 class Command(BaseCommand):
     help = 'Subscribe to a Google Pub/Sub topic and handle message'
 
-
     def handle(self, *args, **options):
         subscription_id = GOOGLE_SUBSCRIPTION_ID
-        project_id = GOOGLE_PROJECT_ID # Replace with your project ID
+        project_id = GOOGLE_PROJECT_ID  # Replace with your project ID
 
         subscriber = pubsub_v1.SubscriberClient()
         subscription_path = subscriber.subscription_path(project_id, subscription_id)

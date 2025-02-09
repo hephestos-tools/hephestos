@@ -1,4 +1,4 @@
-from cross_sell.core.repository.workflow_repository import WebhookRepository
+from core.repository.workflow_repository import WebhookRepository
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
@@ -30,12 +30,7 @@ def webhook(request):
 
         # persist data
         body_data = json.loads(request.body.decode('utf-8'))
-        webhook_data = Webhooks(
-            webhook_data=str(body_data),
-            shop_id='some_id',
-            app=str(AppType.CROSS_SELL.value),
-            event_type=event_type
-        )
+        webhook_data = ""
         WebhookRepository.save(webhook_data)
 
         # send this data for further processing

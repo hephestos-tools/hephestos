@@ -10,6 +10,15 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+
+import environ
+
+# Initialize environment variables
+env = environ.Env()
+environ.Env.read_env()  # Reads the .env file
+
+# Access environment variables
+google_application_credentials = env('GOOGLE_APPLICATION_CREDENTIALS')
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,9 +34,16 @@ SECRET_KEY = 'django-insecure-!-nrmx@m3w4!+)l##$a3v#4b&(mto4ya!$ueeo5&q)nufbg$ra
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# this will be changed whenever we restart ngrok server
+ALLOWED_HOSTS = [
+    '6810-49-207-225-14.ngrok-free.app',
+    '127.0.0.1',
+    'localhost',
+    '0.0.0.0'
+]
 
-
+# shopify shared secret for store 'hephystore.myshopify.com'
+SHOPIFY_SHARED_SECRET = '52a7872e78e147f80a4f72030fc22546c4ffa208c1ddb69234c11b49d6935f3d'
 # Application definition
 
 INSTALLED_APPS = [
@@ -37,7 +53,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'core.apps.CoreConfig',
     'cross_sell.apps.CrossSellConfig',
+    'shopify.apps.ShopifyConfig',
 ]
 
 MIDDLEWARE = [
@@ -79,8 +97,8 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "hephestos",
         "USER": "postgres",
-        "PASSWORD": "",
-        "HOST": "127.0.0.1",
+        "PASSWORD": "h3phest0$",
+        "HOST": "db",
         "PORT": "5432",
     }
 }
@@ -126,3 +144,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+GOOGLE_SUBSCRIPTION_ID = 'cross-sell-sub'
+GOOGLE_PROJECT_ID = 'quantum-reducer-434016-m2'

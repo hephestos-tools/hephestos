@@ -36,7 +36,7 @@ DEBUG = True
 
 # this will be changed whenever we restart ngrok server
 ALLOWED_HOSTS = [
-    '6810-49-207-225-14.ngrok-free.app',
+    '3018-2a02-8086-d27-2700-3d4e-de75-d7d3-a1ee.ngrok-free.app',
     '127.0.0.1',
     'localhost',
     '0.0.0.0'
@@ -145,5 +145,5 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-GOOGLE_SUBSCRIPTION_ID = 'cross-sell-sub'
+GOOGLE_SUBSCRIPTION_ID = 'shopify'
 GOOGLE_PROJECT_ID = 'quantum-reducer-434016-m2'

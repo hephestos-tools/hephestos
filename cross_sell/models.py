@@ -1,3 +1,5 @@
+from django.utils import timezone
+
 from django.db import models
 from shopify.models import Shop
 
@@ -12,6 +14,8 @@ class ShopifyEventType(models.TextChoices):
 
 
 class WebhookEvents(models.Model):
+    order_id = models.BigIntegerField(null=False, default=0)
+    created_at = models.DateTimeField(null=False, default=timezone.now)
     webhook_data = models.TextField(null=False)
     event_type = models.CharField(choices=ShopifyEventType.choices)
     shop_domain = models.CharField(max_length=100, null=False)

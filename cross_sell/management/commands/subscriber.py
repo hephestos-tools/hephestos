@@ -1,3 +1,4 @@
+import datetime
 import json
 
 from django.core.management.base import BaseCommand
@@ -22,20 +23,22 @@ class Command(BaseCommand):
             try:
                 # Process the message
                 try:
-                    print(f'Received message: {message.data.decode("utf-8")} ')
+                    print(f'Received message: {message.data.decode("utf-8")} + at: {datetime.UTC} ')
                     order_create_payload = json.loads(message.data.decode("utf-8"))
+
                     order_id = order_create_payload.get("id")
                     created_at = order_create_payload.get("created_at")
-                    is_duplicate = WebhookEvents.objects.filter(order_id=order_id, created_at=created_at).exists()
-                    if is_duplicate is False:
-                        shop_domain = order_create_payload.get("order_status_url")
-                        shop_domain = shop_domain.split("//")[1].split(".")[0]
-                        event = WebhookEvents(order_id=order_id,
-                                              created_at=created_at,
-                                              webhook_data=order_create_payload,
-                                              shop_domain=shop_domain,
-                                              event_type=ShopifyEventType.ORDERS_CREATE)
-                        event.save()
+                    if order_id is not None and created_at is not None:
+                        is_duplicate = WebhookEvents.objects.filter(order_id=order_id, created_at=created_at).exists()
+                        if is_duplicate is False:
+                            shop_domain = order_create_payload.get("order_status_url")
+                            shop_domain = shop_domain.split("//")[1].split(".")[0]
+                            event = WebhookEvents(order_id=order_id,
+                                                  created_at=created_at,
+                                                  webhook_data=order_create_payload,
+                                                  shop_domain=shop_domain,
+                                                  event_type=ShopifyEventType.ORDERS_CREATE)
+                            event.save()
                 except (json.JSONDecodeError, KeyError):
                     print("Invalid JSON payload received")
                     return False

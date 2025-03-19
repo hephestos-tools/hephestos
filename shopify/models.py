@@ -10,7 +10,7 @@ class Shop(models.Model):
 
 class Customer(models.Model):
     shop_customer_id = models.BigIntegerField(null=False)
-    shop = models.ForeignKey(Shop, to_field='domain', on_delete=models.CASCADE, related_name='customers')
+    domain = models.ForeignKey(Shop, to_field='domain', on_delete=models.CASCADE, related_name='customers')
     email = models.EmailField(max_length=255, null=False)
     first_name = models.CharField(max_length=255, blank=True, null=True)
     last_name = models.CharField(max_length=255, blank=True, null=True)
@@ -22,8 +22,8 @@ class Order(models.Model):
     name = models.CharField(max_length=255, null=False)
     order_id = models.BigIntegerField(null=False, default=0)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, null=False)
-    shop_domain = models.ForeignKey(Shop, to_field='domain', on_delete=models.CASCADE, related_name='orders')
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='orders')
+    domain = models.ForeignKey(Shop, to_field='domain', on_delete=models.CASCADE, related_name='orders')
+    customer_email = models.TextField(max_length=100, null=True)
     app_id = models.BigIntegerField(null=True)
     payload = JSONField(blank=True, null=True)
 

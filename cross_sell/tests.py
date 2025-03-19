@@ -87,7 +87,7 @@ class SubscriberTestCase(TestCase):
         mock_filter.return_value.exists.return_value = True
 
         # Call function
-        callback(sample_webhook_payload)
+        callback(mock_message)
 
         # Ensure message is acknowledged, but no save() is performed
         mock_message.ack.assert_called_once()

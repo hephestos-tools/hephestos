@@ -50,6 +50,7 @@ def callback(message):
                         message.nack()
                         print(f" [{datetime.now(timezone.utc)}] Error parsing shop URL: {idx_error}")
                 else:
+                    message.ack()
                     print(f"[{datetime.now(timezone.utc)}] Duplicate order detected, skipping...")
         except (json.JSONDecodeError, KeyError):
             message.nack()

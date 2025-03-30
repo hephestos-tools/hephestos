@@ -10,16 +10,18 @@ def extract_shopify_data(webhook_payload, shop_domain, shop_id):
         shop.save()
         print(f'Saved Shop object.')
 
+    order = Order(name=webhook_payload.get("name"),
+                  order_id=webhook_payload.get("id"),
+                  total_price=webhook_payload.get("current_total_price"),
+                  domain=shop,
+                  app_id=webhook_payload.get("app_id"),
+                  payload=webhook_payload,
+                  customer_email=webhook_payload.get("email"))
     if not Order.objects.filter(order_id=webhook_payload.get("id"), domain=shop_domain).exists():
-        order = Order(name=webhook_payload.get("name"),
-                      order_id=webhook_payload.get("id"),
-                      total_price=webhook_payload.get("current_total_price"),
-                      domain=shop,
-                      app_id=webhook_payload.get("app_id"),
-                      payload=webhook_payload,
-                      customer_email=webhook_payload.get("email"))
         order.save()
         print(f'Saved Order object.')
+
+    return [shop, order]
 
     # customer_data = webhook_payload.get("customer")
     # if Customer.objects.filter(shop_customer_id=customer_data.get("id"), domain=shop).exists() is False:

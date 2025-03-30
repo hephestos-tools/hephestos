@@ -83,13 +83,18 @@ COMMIT;  -- Save the transaction
 
 ### Creating and Running DB migrations using Django
 Your project should be running.
+<br/>**Note**: Always specify which app you are running the migration for
 1. If you need to add/edit/drop a column in one of the tables, 
 then you just need to edit the corresponding model defined in e.g. `<app>/models.py`, then run:<br/>
     ```
     docker exec -it hephestos-web-1 python manage.py makemigrations <app>
     ```
-    This will create a new file under `<app>/migrations directory`<br/>
-2. Restart your server - this will run any new migrations, check logs for any failures, if you find any bugs, you can delete the migration file created in Step 1 and regenerate a new one.
+    This will create a new file under `<app>/migrations` directory<br/><br/>
+2. Manually run the migration command
+    ```
+   docker exec -it hephestos-web-1 python manage.py migrate <app>
+   ```
+3. or, restart your server - this will run any new migrations, check logs for any failures, if you find any bugs, you can delete the migration file created in Step 1 and regenerate a new one.
     ```commandline
     docker compose restart
     ```

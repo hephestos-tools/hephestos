@@ -4,6 +4,8 @@ import json
 from django.core.management.base import BaseCommand
 from google.cloud import pubsub_v1
 from google.api_core.exceptions import GoogleAPIError
+
+from cross_sell.processor import process
 from hephestos.settings import GOOGLE_SUBSCRIPTION_ID
 from hephestos.settings import GOOGLE_PROJECT_ID
 from cross_sell.models import WebhookEvents, ShopifyEventType
@@ -43,9 +45,10 @@ def callback(message):
                                                   webhook_data=order_create_payload,
                                                   shop_domain=shop_domain,
                                                   event_type=ShopifyEventType.ORDERS_CREATE)
-                            extract_shopify_data(order_create_payload, shop_domain, shop_id)
+                            [shop, order] = extract_shopify_data(order_create_payload, shop_domain, shop_id)
                             event.save()
                             message.ack()
+                            process(order_create_payload, shop, order)
                     except IndexError as idx_error:
                         message.nack()
                         print(f" [{datetime.now(timezone.utc)}] Error parsing shop URL: {idx_error}")

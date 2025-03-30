@@ -33,7 +33,7 @@ class Template(models.Model):
         db_table = 'cross_sell_template'
 
 
-class SavedTemplate(models.Model):
+class x(models.Model):
     template = models.ForeignKey(Template, on_delete=models.CASCADE)
     shop = models.ForeignKey(Shop, to_field='domain', on_delete=models.CASCADE, related_name='saved_templates')
     workflow_json = models.JSONField(null=False)

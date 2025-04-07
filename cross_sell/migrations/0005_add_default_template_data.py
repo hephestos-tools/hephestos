@@ -13,10 +13,11 @@ class Migration(migrations.Migration):
             "task0": {
                 "type": "condition",
                 "properties": {
-                    "condition_type": "if",
-                    "operator": ">",
-                    "operand1": "current_total_price",
-                    "operand2": "{val}"
+                    "if": {
+                        "op": ">",
+                        "field": "current_total_price",
+                        "value": "{val}"
+                    }
                 },
                 "next": ["task1", None]
             },

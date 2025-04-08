@@ -7,8 +7,10 @@ def execute_workflow(workflow):
 
 
 def execute_task(task):
-    task_type = task["type"]
-    task_data = task["data"]
+    #TODO: Task should be a class
+    type = task["type"]
+    properties = task["properties"]
+    next = task["next"]
 
-    handler = TaskRegistry.get_handler(task_type)
-    handler(task_data)  # Executes the correct function dynamically
+    handler = TaskRegistry.get_handler(type)
+    handler(properties)  # Executes the correct function dynamically

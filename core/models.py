@@ -1,5 +1,4 @@
 from django.db import models
-from django.db.models import JSONField
 
 
 # Create your models here.
@@ -18,7 +17,7 @@ class ConditionType(models.TextChoices):
     IF_ELSEIF = 'if-elseif', 'If-Elseif'
 
 
-class NodeType(models.TextChoices):
+class TaskType(models.TextChoices):
     CONDITION = 'condition', 'Condition'
     ACTION = 'action', 'Action'
     TRIGGER = 'trigger', 'Trigger'

@@ -1,5 +1,13 @@
+## About
+hephestos is a suite of tools/apps created in Django for Shopify ecosystem.
+#### Current apps
+CrossSell(External): Lets a merchant define workflow for marketing product B if they sold product A
+<br>Core(Internal): Engine for executing workflows
+<br>Shopify(Internal): App for logic pertaining to Shopify APIs and data
+
 ## hephestos dev setup MacOS
 We are using docker to manage setup.
+(TODO: Add setup commands for Windows OS)
 
 ### Clone Project
 #### SSH remote repository
@@ -19,12 +27,12 @@ docker-compose build
 
 ### Run the app
 This step will:
-1. Run the db image 
-2. Run db migrations from web app
-3. Start google pub-sub subsriber
-4. Start the webserver on [0.0.0.0:8000]()
+1. Startup the postgres db image
+2. Run db migrations (if any migration files are added in the project)
+3. Start google pub-sub subscriber
+4. Start the webserver on [0.0.0.0:8000]() 
 ```commandline
-docker-compose up [-d]
+docker-compose up
 ```
 Use `-d` flag when you want to access the terminal and let docker run in background. <br/><br/>
 **To stop the server run** `docker-compose down`
@@ -41,16 +49,109 @@ Image Names:<br/>
 docker logs <image-name>
 ```
 
+### Test if app started up okay
+In your browser open http://127.0.0.1:8000/cross-sell/ and you should see something like this if your setup is successful:
+![img.png](img.png)
+
+
 ### Access DB image
-This command will open the DB server using bash where you can run psql commands
+This command will open the Postgres DB server using bash where you can run psql commands
 ```commandline
 docker exec -it hephestos-db-1 bash
 ```
-PSQL Command to access DB
+PSQL Command to access DB<br/>
+
+- Logs in using default postgres user
 ```commandline
 psql -U postgres -d hephestos
 ```
 
-### Test app
-In your browser open http://127.0.0.1:8000/cross-sell/ and you should see something like this if your setup is successful:
-![img.png](img.png)
+#### Some common psql commands
+- Run these after logging into psql command line
+```psql
+\dt  -- List all tables in the current database
+\d table_name  -- Describe table structure
+\x -- for expanded output format when data is wide
+```
+- To do manual transactions for testing.
+```sql
+BEGIN;  -- Start a transaction
+UPDATE users SET email = 'new@example.com' WHERE name = 'Alice';
+ROLLBACK;  -- Undo the transaction
+COMMIT;  -- Save the transaction
+```
+
+### Creating and Running DB migrations using Django
+Your project should be running.
+<br/>**Note**: Always specify which app you are running the migration for
+1. If you need to add/edit/drop a column in one of the tables, 
+then you just need to edit the corresponding model defined in e.g. `<app>/models.py`, then run:<br/>
+    ```
+    docker exec -it hephestos-web-1 python manage.py makemigrations <app>
+    ```
+    This will create a new file under `<app>/migrations` directory<br/><br/>
+2. Manually run the migration command
+    ```
+   docker exec -it hephestos-web-1 python manage.py migrate <app>
+   ```
+3. or, restart your server - this will run any new migrations, check logs for any failures, if you find any bugs, you can delete the migration file created in Step 1 and regenerate a new one.
+    ```commandline
+    docker compose restart
+    ```
+
+
+
+### Setting Up Google Cloud Credentials
+
+1. Create a new service account in Google Cloud Console:
+   - Go to IAM & Admin > Service Accounts
+   - Create new service account with minimal required permissions
+   - Generate and download JSON key
+
+2. Set up credentials:
+   ```bash
+   # Create secrets directory
+   mkdir -p config/secrets
+   
+   # Copy your credentials file
+   cp /path/to/your/credentials.json config/secrets/
+   
+   # Verify permissions
+   chmod 600 config/secrets/credentials.json
+   ```
+
+3. Update environment:
+   - Copy `.env.example` to `.env`
+   - Update credential paths in `.env` if needed
+
+4. For Docker:
+   - The credentials will be automatically mounted as a secret
+   - No additional configuration needed
+
+### Generating Secure Secrets
+
+1. Django Secret Key:
+   ```bash
+   python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'
+   ```
+
+2. Shopify Shared Secret:
+   - Generate in Shopify Admin > Apps > Your App > App Settings
+   - Copy to .env file
+
+3. Google Cloud Credentials:
+   - Follow the steps in "Setting Up Google Cloud Credentials" section
+   - Ensure minimal required permissions
+
+### Environment Setup
+
+1. Copy example environment file:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Update .env with your secrets:
+   - Replace placeholder values with actual secrets
+   - Never commit .env to version control
+   - Keep a backup of your secrets in a secure location
+

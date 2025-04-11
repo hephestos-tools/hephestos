@@ -10,42 +10,30 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
-
 import environ
+from pathlib import Path
 
 # Initialize environment variables
 env = environ.Env()
 environ.Env.read_env()  # Reads the .env file
 
-# Access environment variables
-google_application_credentials = env('GOOGLE_APPLICATION_CREDENTIALS')
-from pathlib import Path
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Security settings
+# WARNING: DEBUG=True should only be used in development.
+# In production, DEBUG must be set to False to prevent exposure of sensitive information.
+SECRET_KEY = env('SECRET_KEY', default='django-insecure-default-key-for-development-only')
+DEBUG = env.bool('DEBUG', default=True)
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
+# Shopify settings
+SHOPIFY_SHARED_SECRET = env('SHOPIFY_SHARED_SECRET')
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-!-nrmx@m3w4!+)l##$a3v#4b&(mto4ya!$ueeo5&q)nufbg$ra'
+# Google Cloud settings
+GOOGLE_APPLICATION_CREDENTIALS = env('GOOGLE_APPLICATION_CREDENTIALS')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-# this will be changed whenever we restart ngrok server
-ALLOWED_HOSTS = [
-    '6810-49-207-225-14.ngrok-free.app',
-    '127.0.0.1',
-    'localhost',
-    '0.0.0.0'
-]
-
-# shopify shared secret for store 'hephystore.myshopify.com'
-SHOPIFY_SHARED_SECRET = '52a7872e78e147f80a4f72030fc22546c4ffa208c1ddb69234c11b49d6935f3d'
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -145,5 +133,5 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-GOOGLE_SUBSCRIPTION_ID = 'cross-sell-sub'
+GOOGLE_SUBSCRIPTION_ID = 'shopify'
 GOOGLE_PROJECT_ID = 'quantum-reducer-434016-m2'

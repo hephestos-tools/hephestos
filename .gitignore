@@ -9,3 +9,11 @@ config/gcloud/*
 __pycache__/
 *.py[cod]
 *$py.class
+
+.env
+.env.*
+!.env.example
+
+config/secrets/
+*.json
+!requirements.txt

@@ -99,3 +99,59 @@ then you just need to edit the corresponding model defined in e.g. `<app>/models
     docker compose restart
     ```
 
+
+
+### Setting Up Google Cloud Credentials
+
+1. Create a new service account in Google Cloud Console:
+   - Go to IAM & Admin > Service Accounts
+   - Create new service account with minimal required permissions
+   - Generate and download JSON key
+
+2. Set up credentials:
+   ```bash
+   # Create secrets directory
+   mkdir -p config/secrets
+   
+   # Copy your credentials file
+   cp /path/to/your/credentials.json config/secrets/
+   
+   # Verify permissions
+   chmod 600 config/secrets/credentials.json
+   ```
+
+3. Update environment:
+   - Copy `.env.example` to `.env`
+   - Update credential paths in `.env` if needed
+
+4. For Docker:
+   - The credentials will be automatically mounted as a secret
+   - No additional configuration needed
+
+### Generating Secure Secrets
+
+1. Django Secret Key:
+   ```bash
+   python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'
+   ```
+
+2. Shopify Shared Secret:
+   - Generate in Shopify Admin > Apps > Your App > App Settings
+   - Copy to .env file
+
+3. Google Cloud Credentials:
+   - Follow the steps in "Setting Up Google Cloud Credentials" section
+   - Ensure minimal required permissions
+
+### Environment Setup
+
+1. Copy example environment file:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Update .env with your secrets:
+   - Replace placeholder values with actual secrets
+   - Never commit .env to version control
+   - Keep a backup of your secrets in a secure location
+

@@ -36,16 +36,21 @@ services:
       retries: 3
       start_period: 30s
       timeout: 10s
+    env_file:
+      - .env
     environment:
       - PUBSUB_ENABLED=false
-      - GOOGLE_APPLICATION_CREDENTIALS=/app/config/gcloud/application_default_credentials.json
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/config/secrets/credentials.json
+    secrets:
+      - google-credentials
     depends_on:
        db:
          condition: service_healthy
 
 volumes:
    pgdata:
-# secrets:
-#   db-password:
-#     file: db/password.txt
+
+secrets:
+  google-credentials:
+    file: ./config/secrets/credentials.json
 

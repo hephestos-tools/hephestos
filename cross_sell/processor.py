@@ -1,7 +1,7 @@
 # this function is responsible for calling core
 from core.workflow_executor import execute_workflow
 from cross_sell.models import SavedTemplate
-from cross_sell.task_handler import execute_condition_task
+from cross_sell.task_provider import execute_condition_task
 
 
 def evaluate_trigger(workflow):

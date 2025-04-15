@@ -201,9 +201,10 @@ def evaluate_switch(conditions: List[Dict[str, Any]], context: Dict[str, Any]) -
         Dict containing evaluation result and matched index
     """
     for i, condition in enumerate(conditions):
+        condition_copy = condition.copy()
         # For switch, we only do equality checks
-        condition["operator"] = "=="
-        if evaluate_if(condition, context):
+        condition_copy["operator"] = "=="
+        if evaluate_if(condition_copy, context):
             return {
                 "matched": True,
                 "matched_index": i,

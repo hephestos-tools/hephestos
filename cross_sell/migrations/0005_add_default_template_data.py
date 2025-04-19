@@ -63,8 +63,8 @@ class Migration(migrations.Migration):
             }
         }
 
-        # Convert the dictionary to proper JSON format
-        template.objects.create(name=template_name, description=json.dumps(template_data))
+        # Pass the dictionary directly to the JSONField
+        template.objects.create(name=template_name, description=template_data)
 
     dependencies = [
         ('cross_sell', '0004_remove_webhooktemplatemap_webhook_id_and_more'),

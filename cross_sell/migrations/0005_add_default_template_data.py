@@ -38,7 +38,7 @@ class Migration(migrations.Migration):
                     "type": "delay",
                     "properties": {
                         "duration": 15,
-                        "units": "m"
+                        "units": "minutes"
                     },
                     "next": ["task2"],
                     "status": "pending",

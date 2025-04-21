@@ -155,3 +155,67 @@ then you just need to edit the corresponding model defined in e.g. `<app>/models
    - Never commit .env to version control
    - Keep a backup of your secrets in a secure location
 
+## Debugging Unit Tests with Cursor (Docker Attach)
+
+When running the application stack via Docker Compose, you can debug the Django unit tests running inside the `web` container using Cursor's debugging features by attaching to the test process.
+
+**Prerequisites:**
+
+1.  **`debugpy` Installation:** Ensure `debugpy` is listed in your `requirements.txt` and installed in your `web` container image (rebuild the image if you just added it: `docker compose build web`).
+2.  **Port Exposure:** Make sure port `5678` (the default debug port) is mapped in the `web` service definition within your `docker-compose.yml`:
+    ```yaml
+    services:
+      web:
+        # ... other settings
+        ports:
+          - "8000:8000" # Example existing port
+          - "5678:5678" # Debug port mapping
+    ```
+    Restart your containers if you added this mapping: `docker compose up -d --force-recreate`.
+3.  **Launch Configuration:** You need an "attach" configuration in your `.vscode/launch.json`. Create or open the file and add an entry like this:
+    ```json
+    // .vscode/launch.json
+    {
+        "version": "0.2.0",
+        "configurations": [
+            // ... other configurations ...
+            {
+                "name": "Attach to Django Tests (Docker)",
+                "type": "debugpy",
+                "request": "attach",
+                "connect": {
+                    "host": "localhost", // Connect to the port exposed on your host
+                    "port": 5678        // The debug port
+                },
+                "pathMappings": [
+                    {
+                        "localRoot": "${workspaceFolder}", // Your project folder locally
+                        "remoteRoot": "/app"              // IMPORTANT: Change to the workdir in your container (e.g., /app, /code)
+                    }
+                ],
+                "django": true,
+                "justMyCode": true
+            }
+        ]
+    }
+    ```
+    *   **Critical:** Replace `/app` in `remoteRoot` with the correct path where your code exists *inside* the `web` container (check your `Dockerfile`'s `WORKDIR` or `COPY` commands).
+
+**Debugging Steps:**
+
+1.  **Set Breakpoints:** Open the test file (e.g., `cross_sell/tests.py`) or the application code file in Cursor and click in the gutter to the left of the line number to set breakpoints (red dots).
+2.  **Run Test Command:** Open a terminal (you can use Cursor's integrated terminal: `Terminal` > `New Terminal`) and run the `manage.py test` command within the `web` container, telling `debugpy` to listen for a connection:
+    ```bash
+    docker compose exec web python -m debugpy --listen 0.0.0.0:5678 --wait-for-client manage.py test <test_target>
+    ```
+    *   Replace `<test_target>` with the specific test(s) you want to debug:
+        *   `cross_sell` (whole app)
+        *   `cross_sell.tests` (specific module)
+        *   `cross_sell.tests.ClassName` (specific class)
+        *   `cross_sell.tests.ClassName.test_method_name` (specific test method)
+    *   Your terminal will pause and display `Waiting for debugger attach...`.
+3.  **Start Debugger:** Go to the "Run and Debug" view in Cursor (icon on the left sidebar).
+4.  **Select Configuration:** Choose the "Attach to Django Tests (Docker)" configuration from the dropdown menu at the top.
+5.  **Attach:** Click the green "Start Debugging" play button (or press F5).
+6.  **Debug:** The debugger should attach, the "Waiting..." message in the terminal will disappear, and the test execution will begin. Execution will pause at the first breakpoint encountered. Use the debug controls (step over, step into, continue, etc.) to inspect variables and control flow.
+

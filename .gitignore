@@ -17,3 +17,6 @@ __pycache__/
 config/secrets/
 *.json
 !requirements.txt
+
+# Cursor
+.cursor/rules/django-rules.mdc

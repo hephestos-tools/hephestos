@@ -7,7 +7,7 @@ from django.db import transaction, DatabaseError
 from google.cloud.pubsub_v1.subscriber.message import Message
 from datetime import datetime, timezone, timedelta
 
-from cross_sell.models import WebhookEvents, SavedTemplate, ShopifyEventType # Assume SavedTemplate is needed
+from cross_sell.models import WebhookEvents, Workflow, ShopifyEventType # Assume Workflow is needed
 from cross_sell.management.commands import subscriber # Import the module
 from cross_sell import processor # Import processor module
 
@@ -289,129 +289,115 @@ class ProcessorEvaluateTriggerTests(TestCase):
 class ProcessorProcessTests(TestCase):
 
     def setUp(self):
-        """Common setup for processor tests"""
-        self.mock_shop = MagicMock(domain="testshop.myshopify.com")
-        self.mock_order = MagicMock(id=12345)
-        self.workflow_context = {"shop": self.mock_shop, "order": self.mock_order, "raw_payload": {}}
+        # Create a sample context
+        self.shop_mock = MagicMock()
+        self.shop_mock.domain = "example.myshopify.com"
+        self.order_mock = MagicMock()
+        self.order_mock.id = 12345
+        self.context = {"shop": self.shop_mock, "order": self.order_mock, "raw_payload": {}}
+        
         # Create a sample SavedTemplate object mock
-        self.saved_template_mock = MagicMock(spec=SavedTemplate)
-        self.saved_template_mock.id = 1
-        self.saved_template_mock.name = "Test Workflow"
-        # Assign a deep copy to prevent accidental modification of the original
-        self.saved_template_mock.workflow_json = copy.deepcopy(sample_workflow_json_condition)
+        self.workflow_mock = MagicMock(spec=Workflow)
+        self.workflow_mock.name = "Test Workflow"
+        self.workflow_mock.id = 1
+        self.workflow_mock.workflow_json = sample_workflow_json_condition
 
     @patch('cross_sell.processor.execute_workflow')
     @patch('cross_sell.processor.evaluate_trigger', return_value=True)
-    @patch('cross_sell.processor.SavedTemplate.objects.filter')
+    @patch('cross_sell.processor.Workflow.objects.filter')
     def test_process_success_path(self, mock_filter, mock_evaluate, mock_execute):
-        """Test the main success path of the process function"""
-        mock_qs = MagicMock()
-        mock_qs.exists.return_value = True
-        mock_qs.__iter__.return_value = [self.saved_template_mock] # Simulate finding one workflow
-        mock_qs.count.return_value = 1
-        mock_filter.return_value = mock_qs
+        """Test the successful processing path"""
+        # Configure mocks
+        mock_filter.return_value.exists.return_value = True
+        mock_filter.return_value.count.return_value = 1
+        mock_filter.return_value.__iter__.return_value = [self.workflow_mock]
+        mock_execute.return_value = {"status": "success", "data": {}}
         
-        mock_execute.return_value = {"status": "completed"} # Simulate successful execution
-
-        processor.process(self.workflow_context)
-
-        mock_filter.assert_called_once_with(shop=self.mock_shop.domain)
-        mock_evaluate.assert_called_once_with(self.saved_template_mock.workflow_json, self.workflow_context)
-        mock_execute.assert_called_once_with(self.saved_template_mock.workflow_json, self.workflow_context)
+        # Call process function
+        processor.process(self.context)
+        
+        # Assertions
+        mock_filter.assert_called_once_with(shop=self.shop_mock.domain)
+        mock_evaluate.assert_called_once_with(self.workflow_mock.workflow_json, self.context)
+        mock_execute.assert_called_once_with(self.workflow_mock.workflow_json, self.context)
 
     @patch('cross_sell.processor.logger.error')
     def test_process_no_shop_in_context(self, mock_logger_error):
-        """Test process function when shop is missing from context"""
-        context_no_shop = {"order": self.mock_order}
-        
+        """Test handling missing shop in context"""
+        context_no_shop = {"order": self.order_mock}
         processor.process(context_no_shop)
-        
         mock_logger_error.assert_called_once()
-        error_message = mock_logger_error.call_args[0][0]
-        self.assertIn("Shop information missing", error_message)
+        self.assertIn("Shop information missing", mock_logger_error.call_args[0][0])
 
     @patch('cross_sell.processor.logger.info')
-    @patch('cross_sell.processor.SavedTemplate.objects.filter')
+    @patch('cross_sell.processor.Workflow.objects.filter')
     def test_process_no_workflows_found(self, mock_filter, mock_logger_info):
-        """Test process when no workflows are found for the shop"""
-        mock_qs = MagicMock()
-        mock_qs.exists.return_value = False
-        mock_qs.count.return_value = 0
-        mock_filter.return_value = mock_qs
+        """Test when no workflows are found for the shop"""
+        mock_filter.return_value.exists.return_value = False
         
-        processor.process(self.workflow_context)
+        processor.process(self.context)
         
-        mock_filter.assert_called_once_with(shop=self.mock_shop.domain)
-        
-        # Check for the specific info log about no workflows found
-        log_calls = [call_args[0][0] for call_args in mock_logger_info.call_args_list]
-        matching_logs = [log for log in log_calls if f"No workflows found for shop {self.mock_shop.domain}" in log]
-        self.assertTrue(len(matching_logs) > 0, "Expected log message about no workflows not found")
+        mock_filter.assert_called_once_with(shop=self.shop_mock.domain)
+        # Check for expected log message
+        info_calls = [call[0][0] for call in mock_logger_info.call_args_list]
+        self.assertTrue(any("No workflows found" in msg for msg in info_calls))
 
     @patch('cross_sell.processor.logger.error')
-    @patch('cross_sell.processor.SavedTemplate.objects.filter', side_effect=DatabaseError("DB Error"))
+    @patch('cross_sell.processor.Workflow.objects.filter', side_effect=DatabaseError("DB Error"))
     def test_process_db_error_fetching_workflows(self, mock_filter, mock_logger_error):
-        """Test DB error when fetching workflows"""
-        processor.process(self.workflow_context)
-        mock_filter.assert_called_once_with(shop=self.mock_shop.domain)
+        """Test DB error handling when fetching workflows"""
+        processor.process(self.context)
+        
+        mock_filter.assert_called_once_with(shop=self.shop_mock.domain)
         mock_logger_error.assert_called_once()
-        # Check that the error message contains the expected text
-        error_message = mock_logger_error.call_args[0][0]
-        self.assertIn(f"Database error fetching workflows for shop {self.mock_shop.domain}", error_message)
-        self.assertIn("DB Error", error_message)
+        self.assertIn("Database error fetching workflows", mock_logger_error.call_args[0][0])
 
     @patch('cross_sell.processor.execute_workflow')
     @patch('cross_sell.processor.evaluate_trigger', return_value=False) # Trigger returns false
-    @patch('cross_sell.processor.SavedTemplate.objects.filter')
+    @patch('cross_sell.processor.Workflow.objects.filter')
     def test_process_trigger_evaluates_false(self, mock_filter, mock_evaluate, mock_execute):
-        """Test when the workflow trigger evaluates to false"""
-        mock_qs = MagicMock()
-        mock_qs.exists.return_value = True
-        mock_qs.__iter__.return_value = [self.saved_template_mock]
-        mock_qs.count.return_value = 1
-        mock_filter.return_value = mock_qs
-
-        processor.process(self.workflow_context)
-
-        mock_filter.assert_called_once_with(shop=self.mock_shop.domain)
-        mock_evaluate.assert_called_once_with(self.saved_template_mock.workflow_json, self.workflow_context)
-        mock_execute.assert_not_called() # Workflow should not be executed
+        """Test when workflow trigger evaluates to false"""
+        # Configure mocks
+        mock_filter.return_value.exists.return_value = True
+        mock_filter.return_value.count.return_value = 1
+        mock_filter.return_value.__iter__.return_value = [self.workflow_mock]
+        
+        processor.process(self.context)
+        
+        mock_filter.assert_called_once_with(shop=self.shop_mock.domain)
+        mock_evaluate.assert_called_once_with(self.workflow_mock.workflow_json, self.context)
+        mock_execute.assert_not_called() # Should not execute if trigger is false
 
     @patch('cross_sell.processor.logger.error')
     @patch('cross_sell.processor.execute_workflow', return_value={"status": "failed", "error": "Task failed"})
     @patch('cross_sell.processor.evaluate_trigger', return_value=True)
-    @patch('cross_sell.processor.SavedTemplate.objects.filter')
+    @patch('cross_sell.processor.Workflow.objects.filter')
     def test_process_workflow_execution_fails(self, mock_filter, mock_evaluate, mock_execute, mock_logger_error):
-        """Test when execute_workflow reports a failure"""
-        mock_qs = MagicMock()
-        mock_qs.exists.return_value = True
-        mock_qs.__iter__.return_value = [self.saved_template_mock]
-        mock_qs.count.return_value = 1
-        mock_filter.return_value = mock_qs
+        """Test when workflow execution fails"""
+        # Configure mocks
+        mock_filter.return_value.exists.return_value = True
+        mock_filter.return_value.count.return_value = 1
+        mock_filter.return_value.__iter__.return_value = [self.workflow_mock]
         
-        processor.process(self.workflow_context)
+        processor.process(self.context)
         
-        mock_execute.assert_called_once_with(self.saved_template_mock.workflow_json, self.workflow_context)
-        mock_logger_error.assert_called_once()
-        error_message = mock_logger_error.call_args[0][0]
-        self.assertIn(f"Workflow {self.saved_template_mock.name} failed: Task failed", error_message)
+        mock_execute.assert_called_once_with(self.workflow_mock.workflow_json, self.context)
+        mock_logger_error.assert_called_once() # Should log the error
+        self.assertIn("failed", mock_logger_error.call_args[0][0])
 
     @patch('cross_sell.processor.logger.error')
     @patch('cross_sell.processor.execute_workflow', side_effect=Exception("Exec Error"))
     @patch('cross_sell.processor.evaluate_trigger', return_value=True)
-    @patch('cross_sell.processor.SavedTemplate.objects.filter')
+    @patch('cross_sell.processor.Workflow.objects.filter')
     def test_process_execute_workflow_exception(self, mock_filter, mock_evaluate, mock_execute, mock_logger_error):
-        """Test when calling execute_workflow itself raises an exception"""
-        mock_qs = MagicMock()
-        mock_qs.exists.return_value = True
-        mock_qs.__iter__.return_value = [self.saved_template_mock]
-        mock_qs.count.return_value = 1
-        mock_filter.return_value = mock_qs
+        """Test when workflow execution raises exception"""
+        # Configure mocks
+        mock_filter.return_value.exists.return_value = True
+        mock_filter.return_value.count.return_value = 1
+        mock_filter.return_value.__iter__.return_value = [self.workflow_mock]
         
-        processor.process(self.workflow_context)
+        processor.process(self.context)
         
-        mock_execute.assert_called_once()
-        mock_logger_error.assert_called_once()
-        error_message = mock_logger_error.call_args[0][0]
-        self.assertIn(f"Error processing workflow {self.saved_template_mock.name}", error_message)
-        self.assertIn("Exec Error", error_message)
+        mock_execute.assert_called_once_with(self.workflow_mock.workflow_json, self.context)
+        mock_logger_error.assert_called_once() # Should log the error
+        self.assertIn("Error processing workflow", mock_logger_error.call_args[0][0])

@@ -3,7 +3,7 @@ from typing import Dict, Any
 
 # this function is responsible for calling core
 from core.workflow_executor import execute_workflow
-from cross_sell.models import SavedTemplate
+from cross_sell.models import Workflow
 from cross_sell.task_provider import execute_condition_task
 
 logger = logging.getLogger(__name__)
@@ -46,7 +46,7 @@ def process(workflow_context: Dict[str, Any]):
     logger.info(f"Processing event for shop: {shop.domain}, order_id: {order.id if order else 'N/A'}")
 
     try:
-        saved_workflows = SavedTemplate.objects.filter(shop=shop.domain)
+        saved_workflows = Workflow.objects.filter(shop=shop.domain)
         logger.info(f"Found {saved_workflows.count()} saved workflows for shop: {shop.domain}")
 
         if not saved_workflows.exists():

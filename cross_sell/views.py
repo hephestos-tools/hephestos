@@ -1,12 +1,12 @@
-from core.repository.workflow_repository import WebhookRepository
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.http import JsonResponse
-import hmac
-import hashlib
-from hephestos.settings import SHOPIFY_SHARED_SECRET
 from cross_sell.models import *
+from django.views.decorators.http import require_http_methods
+from shopify.models import Shop
+from django.shortcuts import get_object_or_404
+from .serializers import CreateTemplateSerializer
 
 
 # Create your views here.
@@ -16,50 +16,94 @@ def index(request):
 
 
 @csrf_exempt
-def webhook(request):
-    # verify webhook signature
+@require_http_methods(["POST"])
+def create_workflow(request):
+    """
+    Creates a workflow for a shop based on a template.
+    
+    Request body structure:
+    {
+        "template_id": 1,
+        "shop_domain": "example.myshopify.com",
+        "workflow_json": {}, // JSON representation of the workflow
+        "is_active": true
+    }
+    """
+    try:
+        serializer = CreateTemplateSerializer(data=json.loads(request.body.decode('utf-8')))
+        if not serializer.is_valid():
+            return JsonResponse({'errors': serializer.errors}, status=400)
+        
+        data = serializer.validated_data
+        template = get_object_or_404(WorkflowTemplate, id=data['template_id'])
+        shop = get_object_or_404(Shop, domain=data['shop_domain'])
+        
+        workflow = Workflow.objects.create(
+            template=template,
+            shop=shop,
+            workflow_json=data['workflow_json'],
+            is_active=data['is_active']
+        )
+        
+        return JsonResponse({
+            'id': workflow.id,
+            'template_id': template.id,
+            'template_name': template.name,
+            'shop_domain': shop.domain,
+            'created_at': workflow.created_at.isoformat(),
+            'is_active': workflow.is_active
+        }, status=201)
+        
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON in request body'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
-    if request.method == "POST" and request.content_type == "application/json":
-        event_type = request.headers.get('X-Shopify-Topic')
 
-        if event_type != str(ShopifyEventType.ORDERS_CREATE.value):
-            return JsonResponse({'status': 'success'}, status=200)
-        # TODO: verify not working right now
-        # if not verify_webhook_signature(request):
-        #     return JsonResponse({'error': 'Invalid signature'}, status=400)
-
-        # persist data
-        body_data = json.loads(request.body.decode('utf-8'))
-        webhook_data = ""
-        WebhookRepository.save(webhook_data)
-
-        # send this data for further processing
-
-        return JsonResponse({'status': 'success'}, status=200)
-    elif request.method == "GET":
-
-        items = (WebhookRepository.get_all()).values()
-        json_data = list(items)
-
-        return JsonResponse(json_data, safe=False)
-    # unidentified webhook received log this to errors
-    else:
-        return JsonResponse({'status': 'success'}, status=200)
-
-
-def verify_webhook_signature(request):
-    # Get the signature from the header
-    received_signature = request.headers.get('X-Shopify-Hmac-Sha256')
-
-    # Compute the HMAC-SHA256 hash of the request body
-    computed_signature = hmac.new(
-        SHOPIFY_SHARED_SECRET.encode('utf-8'),
-        request.get_data(),
-        hashlib.sha256
-    ).digest()
-
-    # Encode the computed signature to base64
-    computed_signature_base64 = computed_signature.hex()
-
-    # Compare the computed signature with the received signature
-    return hmac.compare_digest(received_signature, computed_signature_base64)
+@csrf_exempt
+@require_http_methods(["GET"])
+def list_shop_workflows(request):
+    """
+    Lists all workflows for a specific shop.
+    
+    URL: /cross-sell/workflow/list?shop_domain=example.myshopify.com
+    
+    Returns a list of all workflows for the specified shop,
+    including basic information about each workflow.
+    """
+    try:
+        # Get shop domain from query parameter
+        shop_domain = request.GET.get('shop_domain')
+        if not shop_domain:
+            return JsonResponse({'error': 'shop_domain query parameter is required'}, status=400)
+        
+        # Verify shop exists
+        shop = get_object_or_404(Shop, domain=shop_domain)
+        
+        # Get all workflows for this shop
+        workflows = Workflow.objects.filter(
+            shop=shop
+        ).select_related('template')
+        
+        # Prepare response data
+        workflows_data = []
+        for workflow in workflows:
+            workflows_data.append({
+                'id': workflow.id,
+                'template_id': workflow.template.id,
+                'template_name': workflow.template.name,
+                'is_active': workflow.is_active,
+                'created_at': workflow.created_at.isoformat(),
+                'updated_at': workflow.updated_at.isoformat(),
+                'last_executed': workflow.last_executed.isoformat() if workflow.last_executed else None,
+                'execution_count': workflow.execution_count
+            })
+        
+        return JsonResponse({
+            'shop_domain': shop_domain,
+            'workflows_count': len(workflows_data),
+            'workflows': workflows_data
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

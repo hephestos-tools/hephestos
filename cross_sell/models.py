@@ -44,9 +44,10 @@ class WebhookEvents(models.Model):
         ]
 
 
-class Template(models.Model):
+class WorkflowTemplate(models.Model):
     """
-    Base template for workflows.
+    Base template for workflows that defines the structure and available options.
+    These are predefined templates that users can customize.
     """
     name = models.CharField(max_length=255, null=False)
     description = models.JSONField(blank=True, null=True)
@@ -56,15 +57,16 @@ class Template(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = 'cross_sell_template'
+        db_table = 'cross_sell_workflow_template'
 
 
-class SavedTemplate(models.Model):
+class Workflow(models.Model):
     """
-    Represents a saved workflow template.
+    Represents a customized workflow created by a shop based on a template.
+    This is the actual workflow that will be executed with shop-specific settings.
     """
-    template = models.ForeignKey(Template, on_delete=models.CASCADE)
-    shop = models.ForeignKey(Shop, to_field='domain', on_delete=models.CASCADE, related_name='saved_templates')
+    template = models.ForeignKey(WorkflowTemplate, on_delete=models.CASCADE)
+    shop = models.ForeignKey(Shop, to_field='domain', on_delete=models.CASCADE, related_name='workflows')
     workflow_json = models.JSONField(null=False)
     last_executed = models.DateTimeField(null=True)
     execution_count = models.PositiveIntegerField(default=0)
@@ -73,7 +75,7 @@ class SavedTemplate(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = 'cross_sell_saved_template'
+        db_table = 'cross_sell_workflow'
         indexes = [
             models.Index(fields=['shop', 'is_active']),
             models.Index(fields=['last_executed'])
